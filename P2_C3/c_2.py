@@ -1,28 +1,56 @@
-# 2.Desarrolle en algún lenguaje de programación un sistema para una librería. La librería debe
-#   agregar y buscar libros basados en su título. Para hacer la búsqueda más eficiente, haga uso del
-#   código del ejercicio 1.
-class Libreria:
-    def __init__(self,nombre_de_libreria):                                                
-        self.nombre_L = nombre_de_libreria                                              #Atributo1: str: Contiene el nombre de la libreria
-        self.tit_libros = ['juan','pedro','maria','ponce','mercado','manuel','edgar']   #Atributo2: Lista paralela1: Contiene los titulos
-        self.id_libros = [1,2,4,7,9,10,11]                                              #Atributo3: Lista paralela2: Contiene los id de cad.libro
+# 2. Desarrolle en algún lenguaje de programación un sistema para una librería. La librería debe
+#    agregar y buscar libros basados en su título. Para hacer la búsqueda más eficiente, haga uso del
+#    código del ejercicio 1.
 
-    def buscar_libros(self,x):   #Metodo1 : Algoritmo :Busqueda_binaria: Busca en la lista paralela2'id_libros' , cuando se tiene el id buscado entrega(retornara)
-                                 #                           el titulo , lista_de_titulos[id_encontrado]
-                                 # En caso de no encontrar el id , retorna un mensaje
-        low = 0         
-        high = len(self.id_libros)-1
+class Libreria:
+    def __init__(self, nombre_de_libreria):
+        self.nombre_L = nombre_de_libreria                                                   # Atributo1: str: Contiene el nombre de la libreria
+        self.biblioteca = {100: 'celeste castillo', 101: "el principito", 102: "el universo"} # Atributo2: dict: Contiene la relacion {id: titulo}
+
+    # Metodo 1: Busqueda nativa de Python usando .get()
+    # Aprovecha la implementacion interna de tabla hash (hash table) de los diccionarios.
+    # Complejidad temporal promedio: O(1). No requiere ordenar las claves previamente ni iterar.
+    def buscar_libro_get(self, x):
+        return self.biblioteca.get(x, f'No se encuentra ningún libro con el id entregado: {x}')
+
+    # Metodo 2: Algoritmo de Busqueda Binaria manual
+    # Para aplicar búsqueda binaria sobre un diccionario, primero se extraen y ordenan sus claves.
+    # Complejidad temporal: O(log n) sobre las claves ordenadas.
+    # En caso de no encontrar el id, retorna un mensaje descriptivo.
+    def buscar_libros_binaria(self, x):
+        claves = sorted(self.biblioteca.keys())  # Obtenemos las claves ordenadas para dividir el espacio de busqueda
+        low = 0
+        high = len(claves) - 1
         mid = 0
 
         while low <= high:
-            mid = (high + low) //2
-            if self.id_libros[mid] < x:
+            mid = (high + low) // 2
+            if claves[mid] < x:
                 low = mid + 1
-            elif self.id_libros[mid] > x:
+            elif claves[mid] > x:
                 high = mid - 1
             else:
-                return self.tit_libros[mid]
-        return f'No se encuentra ningún libro en el ide entregado'
+                return self.biblioteca[claves[mid]]  # Retorna el titulo asociado al id encontrado
 
+        return f'No se encuentra ningún libro en el id entregado: {x}'
+
+    # Metodo 3: Agrega o actualiza un libro en la coleccion
+    def agregar_libro(self, ID, libro):
+        self.biblioteca[ID] = libro  # Insercion directa O(1) en el diccionario
+
+
+# --- Pruebas del sistema ---
 lib = Libreria('Libreria-9029')
-print(lib.buscar_libros(3))
+
+# Agregar nuevos libros
+lib.agregar_libro(103, "Cien años de soledad")
+lib.agregar_libro(99, "Ficciones")
+
+print("--- Búsqueda nativa (.get) ---")
+print(lib.buscar_libro_get(101))  # 'el principito'
+print(lib.buscar_libro_get(999))  # Mensaje no encontrado
+
+print("\n--- Búsqueda manual (Binaria) ---")
+print(lib.buscar_libros_binaria(99))   # 'Ficciones'
+print(lib.buscar_libros_binaria(103))  # 'Cien años de soledad'
+print(lib.buscar_libros_binaria(500))  # Mensaje no encontrado
